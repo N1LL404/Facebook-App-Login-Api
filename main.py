@@ -6,7 +6,7 @@ import uuid
 import time
 
 def login(Uid_or_email_or_number, password):
-    """Perform login using contact_point and password"""
+    """Perform login using Uid_or_email_or_number and password"""
     headers = {
         'x-fb-ta-logging-ids': f'graphql:{str(uuid.uuid4())}',
         'x-fb-request-analytics-tags': '{"network_tags":{"product":"350685531728","purpose":"fetch","request_category":"graphql","retry_attempt":"0"},"application_tags":"graphservice"}',
@@ -28,23 +28,15 @@ def login(Uid_or_email_or_number, password):
         'x-fb-server-cluster': 'True',
     }
 
-    # Generate timestamps and IDs
     current_timestamp = int(time.time())
     device_id = str(uuid.uuid4())
     waterfall_id = str(uuid.uuid4())
     secure_family_device_id = str(uuid.uuid4())
     client_trace_id = str(uuid.uuid4())
     qpl_instance_id = int(time.time() * 1000000000000)
-
-    # Format password: #PWD_FB4A:0:{timestamp}:{password}
-    # If password already starts with #PWD_FB4A, use it as is
-    if not password.startswith('#PWD_FB4A'):
-        password_timestamp = int(time.time())
-        formatted_password = f"#PWD_FB4A:0:{password_timestamp}:{password}"
-    else:
-        formatted_password = password
-
-    # Build the nested variables structure
+    password_timestamp = int(time.time())
+    formatted_password = f"#PWD_FB4A:0:{password_timestamp}:{password}"
+    
     client_input_params = {
         "aac": json.dumps({"aac_init_timestamp": current_timestamp}),
         "sim_phones": [],
@@ -158,9 +150,17 @@ def login(Uid_or_email_or_number, password):
 
     try:
         response = requests.post('https://b-graph.facebook.com/graphql', headers=headers, data=data)
-        response.raise_for_status()
+        if "session_key" in response.text:
+            print("Login Success")
+        else:
+            print("Login Faild")
         return response.json()
     except Exception as e:
         print(f"Error in login: {e}")
         return None
 
+
+uid = '61551953405005'
+password = 'password#123'
+
+login(Uid_or_email_or_number, password)
