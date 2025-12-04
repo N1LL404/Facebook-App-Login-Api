@@ -1,3 +1,5 @@
+import json
+import re
 import requests
 import json
 import re
@@ -151,7 +153,36 @@ def login(Uid_or_email_or_number, password):
     try:
         response = requests.post('https://b-graph.facebook.com/graphql', headers=headers, data=data)
         if "session_key" in response.text:
-            print("Login Success")
+            req = response.text.replace('\\','')
+            c_user = re.search('"c_user","value":"(.*?)"',str(req))
+            xs = re.search('"xs","value":"(.*?)"',str(req))
+            fr = re.search('"fr","value":"(.*?)"',str(req))
+            datr = re.search('"datr","value":"(.*?)"',str(req))
+            access_token = re.search('"access_token":"(.*?)"',str(req))
+
+            cookies = []
+            if c_user:
+                cookies.append(f"c_user={c_user.group(1)}")
+            if xs:
+                cookies.append(f"xs={xs.group(1)}")
+            if fr:
+                cookies.append(f"fr={fr.group(1)}")
+            if datr:
+                cookies.append(f"datr={datr.group(1)}")
+
+            if cookies:
+                cookie_header = "; ".join(cookies)
+
+                print(cookie_header)
+
+                print('')
+                if access_token:
+                    print("Access Token:", access_token.group(1))
+                    print('')
+                    print("UID:", c_user.group(1))
+                    print("\n" + "="*80 + "\n")
+            else:
+                print("No cookies found! Check the JSON format.")
         else:
             print("Login Faild")
         return response.json()
@@ -160,7 +191,18 @@ def login(Uid_or_email_or_number, password):
         return None
 
 
-uid = '61551953405005'
-password = 'password#123'
 
-login(Uid_or_email_or_number, password)
+
+
+
+
+
+
+uid = '61567067301519'
+password = 'my1x5df&qs'
+
+login(uid, password)
+
+
+
+
